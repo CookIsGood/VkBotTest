@@ -1,0 +1,26 @@
+# Вытаскиваем всех участников с дополнительным полем: "can_write_private_message"
+# Для того, чтобы можно было фильтровать по признаку доступности отправки сообщения
+member_get_close_msg = vk_session.method('groups.getMembers',
+{'group_id': vk_id_group, 'count': 20,
+'fields': "can_write_private_message"})
+# Вытаскиваем всех участников группы для получения их id
+members = vk_session.method('groups.getMembers',
+{'group_id': vk_id_group, 'count': 20})
+# Присваиваем id участников в отдельную переменную
+users_items = members["items"]
+# Получаем количество участников группы
+count_users_items = members["count"]
+# for i in range(count_users_items):
+# print(str(member_get_close_msg["items"][i]['is_closed']))
+
+print(users_items)
+print("Сообщение доставляется: " + str(count_users_items) + " пользовтелям...")
+
+for i in range(count_users_items):
+if not member_get_close_msg["items"][i]['is_closed']:
+# users_not_msg += 1
+i += 1
+else:
+send_message(vk_session, id_type='user_id', id_user=users_items[i],
+message="Привет!")
+i += 1
