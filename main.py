@@ -53,6 +53,7 @@ def send_message(vk_session, id_type, id_user, message=None):
 
 # Исполняющая программу функция
 def main():
+    print("приложение запущено")
     vk_session = vk_api.VkApi(token=vk_api_token)
     monitor_msg(vk_session)
 
