@@ -3,8 +3,6 @@ import vk_api
 import vk_api.vk_api
 from vk_api import VkUpload
 from vk_api.longpoll import VkLongPoll, VkEventType
-
-# print(vk_api.path)
 from vk_api.utils import get_random_id
 # Приватные файлы
 from login import vk_api_token, vk_id_group, my_id, id_1
@@ -15,16 +13,16 @@ import random
 import datetime
 import requests
 import re
-import sys
 
 
 # KeyError:
 
 def monitor_msg(vk_session, session_api):
     longpoll = VkLongPoll(vk_session)
+    # users_not_msg = 0
     for event in longpoll.listen():
         # Вывод сообщение по ивенту: НОВОЕ СООБЩЕНИЕ
-        if event.type == VkEventType.POLL_VOTE_NEW:
+        if event.type == VkEventType.MESSAGE_NEW:
             print("Время сообщения: " + str(event.datetime))
             print("Сообщение: " + str(event.text))
             # Преобразование всего текста в нижний регистр

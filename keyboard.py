@@ -25,6 +25,8 @@ def create_keyboard(response, user_id, my_id, id_1):
         keyboard.add_button('Создать рассылку', color=VkKeyboardColor.POSITIVE)
         keyboard.add_line()
         keyboard.add_button('Отправить рассылку', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
+        keyboard.add_button('Закрыть клавиатуру', color=VkKeyboardColor.NEGATIVE)
 
     elif response == 'закрыть клавиатуру':
         print('Закрываем клавиатуру')
