@@ -5,7 +5,7 @@ from vk_api import VkUpload
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 # Приватные файлы
-from login import vk_api_token, vk_id_group, my_id
+from login import vk_api_token, vk_id_group, my_id, id_1
 import video_get
 # Вспомогательные библиотеки
 import keyboard
@@ -27,10 +27,10 @@ def monitor_msg(vk_session, session_api):
             print("Сообщение: " + str(event.text))
             # Преобразование всего текста в нижний регистр
             response = event.text.lower()
-            new_keyboard = keyboard.create_keyboard(response, event.user_id, my_id)
+            new_keyboard = keyboard.create_keyboard(response, event.user_id, my_id, id_1)
             if event.from_user and not event.from_me:
                 # Если нажимают: "1"
-                if response == 'рассылка' and event.user_id == my_id:
+                if (response == 'рассылка') and (event.user_id == id_1 or event.user_id == my_id):
                     send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                  message="Вы попали в меню рассылки!",
                                  keyboard=new_keyboard, attachment=None)
@@ -44,8 +44,15 @@ def monitor_msg(vk_session, session_api):
                                  keyboard=new_keyboard, attachment=None)
                 elif response == 'о нас':
                     print("Ввели команду: о нас")
+                    attach = 'video-191447820_456239018', 'photo114220893_457247628'
+                    print(type(attach))
+                    buff = []
+                    for items in attach:
+                        buff.append(items)
+                    attach_list = ','.join(buff)
+                    print(attach_list)
                     send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ссылка на видео",
-                                 keyboard=None, attachment='video-191447820_456239018')
+                                 keyboard=None, attachment=attach_list)
                 elif response == 'команда 2':
                     print("Ввели команду: команда 2")
                     send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Вы ввели команду 2",
@@ -62,7 +69,7 @@ def monitor_msg(vk_session, session_api):
                     print("Ввели команду: закрыть клавиатуру")
                     send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Вы закрыли клавиатуру",
                                  keyboard=new_keyboard, attachment=None)
-                elif response == 'создать рассылку' and event.user_id == my_id:
+                elif (response == 'создать рассылку') and (event.user_id == id_1 or event.user_id == my_id):
                     with open("Инструкция.txt", 'r', encoding="utf-8") as f:
                         message_main = f.read()
                     print("Ввели команду: создать рассылку")
@@ -72,7 +79,7 @@ def monitor_msg(vk_session, session_api):
                     attach_send_in = open('Вложение рассылки.txt', 'w', encoding='utf-8')
                     text_send_in.truncate()
                     attach_send_in.truncate()
-                elif response == 'отправить рассылку' and event.user_id == my_id:
+                elif (response == 'отправить рассылку') and (event.user_id == id_1 or event.user_id == my_id):
                     text_final = open("Текст рассылки.txt", 'r', encoding="utf-8")
                     attach_final = open("Вложение рассылки.txt", 'r', encoding="utf-8")
                     send_text_final = text_final.read()
@@ -103,19 +110,33 @@ def monitor_msg(vk_session, session_api):
                             print("Пользователю не отправилось сообщение!")
                             continue
                 else:
-                    try:
-                        attach_link = str(event.attachments["attach1_type"]) + str(event.attachments["attach1"])
-                        print(attach_link)
-                    except KeyError:
-                        attach_link = None
-                        print("Сообщение не содержит вложений")
-                        pass
+                    print(event.attachments)
+                    buff_type = []
+                    buff_id = []
+                    for i in range(1, 10):
+                        try:
+                            id_attach = event.attachments["attach" + str(i)]
+                            buff_id.append(id_attach)
+                            type_attach = event.attachments["attach" + str(i) + "_type"]
+                            buff_type.append(type_attach)
+                        except KeyError:
+                            pass
+                    print(len(buff_type))
+                    print(buff_id)
+                    buff = []
+                    for i in range(0, len(buff_type)):
+                        buff.append(str(buff_type[i]) + str(buff_id[i]))
+                    print(buff)
+                    final_buff = []
+                    for items in buff:
+                        final_buff.append(items)
+                    attach_list = ','.join(final_buff)
                     text_final = open("Текст рассылки.txt", 'r+', encoding="utf-8")
                     attach_final = open("Вложение рассылки.txt", 'r+', encoding="utf-8")
                     new_text_send = text_final.read()
                     new_attach_send = attach_final.read()
                     new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
-                    new_attach_send = re.sub(new_attach_send, str(attach_link), new_attach_send)
+                    new_attach_send = re.sub(new_attach_send, str(attach_list), new_attach_send)
                     text_final.write(new_text_send)
                     attach_final.write(new_attach_send)
                     text_final.close()
