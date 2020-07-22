@@ -68,21 +68,10 @@ def monitor_msg(vk_session, session_api):
                     print("Ввели команду: создать рассылку")
                     send_message(vk_session, id_type='user_id', id_user=event.user_id, message=f"{message_main}",
                                  keyboard=None, attachment=None)
-                    print("Вложение: " + str(event.attachments))
-                    try:
-                        attach_link = str(event.attachments["attach1_type"]) + "-" + str(event.attachments["attach1"])
-                    except KeyError:
-                        attach_link = None
-                        print("Сообщение не содержит вложений")
-                        pass
-                    event_msg = str(event.text)
-                    event_at = str(attach_link)
                     text_send_in = open('Текст рассылки.txt', 'w', encoding='utf-8')
                     attach_send_in = open('Вложение рассылки.txt', 'w', encoding='utf-8')
                     text_send_in.truncate()
                     attach_send_in.truncate()
-                    text_send_in.write(event_msg)
-                    attach_send_in.write(event_at)
                 elif response == 'отправить рассылку' and event.user_id == my_id:
                     text_final = open("Текст рассылки.txt", 'r', encoding="utf-8")
                     attach_final = open("Вложение рассылки.txt", 'r', encoding="utf-8")
@@ -108,21 +97,17 @@ def monitor_msg(vk_session, session_api):
                         try:
                             send_message(vk_session, id_type='user_id', id_user=users_items[i],
                                          message=f"{send_text_final}", keyboard=None,
-                                         attachment=f"{send_attach_final}")
+                                         attachment=f"{str(send_attach_final)}")
                         except vk_api.exceptions.ApiError:
                             i += 1
                             print("Пользователю не отправилось сообщение!")
                             continue
                 else:
                     try:
-                        # attach_type = str(event.attachments["attach1_type"]) + "-"
-                        # attach_id = str(event.attachments["attach1"])
-                        attach_link = str("'" + event.attachments["attach1_type"]) + "-" + str(event.attachments["attach1"] + "'")
+                        attach_link = str(event.attachments["attach1_type"]) + str(event.attachments["attach1"])
                         print(attach_link)
                     except KeyError:
                         attach_link = None
-                        # attach_type = None
-                        # attach_id = None
                         print("Сообщение не содержит вложений")
                         pass
                     text_final = open("Текст рассылки.txt", 'r+', encoding="utf-8")
