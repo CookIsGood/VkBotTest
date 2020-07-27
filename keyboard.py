@@ -6,7 +6,7 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 # color=VkKeyboardColor.NEGATIVE - красный
 # color=VkKeyboardColor.PRIMARY - синий
 
-def create_keyboard(response, user_id, my_id, id_1):
+def create_keyboard(response, values):
     keyboard = VkKeyboard(one_time=False)
 
     if response == 'начать':
@@ -16,15 +16,23 @@ def create_keyboard(response, user_id, my_id, id_1):
         keyboard.add_line()
         keyboard.add_button('Команда 3', color=VkKeyboardColor.POSITIVE)
         keyboard.add_button('Команда 4', color=VkKeyboardColor.POSITIVE)
-        if user_id == id_1 or user_id == my_id:
+        if values == 1:
             keyboard.add_line()  # Переход на вторую строку
             keyboard.add_button('Рассылка', color=VkKeyboardColor.NEGATIVE)
+            keyboard.add_button('Управление админами', color=VkKeyboardColor.NEGATIVE)
         keyboard.add_line()
         keyboard.add_button('Закрыть клавиатуру', color=VkKeyboardColor.NEGATIVE)
-    if (response == 'рассылка') and (user_id == id_1 or user_id == my_id):
+    if (response == 'рассылка') and (values == 1):
         keyboard.add_button('Создать рассылку', color=VkKeyboardColor.POSITIVE)
         keyboard.add_line()
         keyboard.add_button('Отправить рассылку', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
+        keyboard.add_button('Закрыть клавиатуру', color=VkKeyboardColor.NEGATIVE)
+    if (response == 'управление админами') and (values == 1):
+        keyboard.add_button('Список админов', color=VkKeyboardColor.POSITIVE)
+        keyboard.add_line()
+        keyboard.add_button('Добавить админа', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_button('Удалить админа', color=VkKeyboardColor.NEGATIVE)
         keyboard.add_line()
         keyboard.add_button('Закрыть клавиатуру', color=VkKeyboardColor.NEGATIVE)
 

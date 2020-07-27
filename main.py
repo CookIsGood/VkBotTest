@@ -5,9 +5,12 @@ from vk_api import VkUpload
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 # Приватные файлы
-from login import vk_api_token, vk_id_group, my_id, id_1
+from login import vk_api_token, vk_id_group, vk_token_server
 import video_get
 # Вспомогательные библиотеки
+import sqlite3
+import threading
+import time
 import keyboard
 import random
 import datetime
@@ -28,10 +31,22 @@ def monitor_msg(vk_session, session_api):
             print("Сообщение: " + str(event.text))
             # Преобразование всего текста в нижний регистр
             response = event.text.lower()
-            new_keyboard = keyboard.create_keyboard(response, event.user_id, my_id, id_1)
+            # Присоеденение к БД
+            # 0 - участник группы
+            # 1 - админ группы
             if event.from_user and not event.from_me:
+                db = sqlite3.connect('server.db')
+                sql = db.cursor()
+                dataCopy = sql.execute(
+                    f"SELECT permession  FROM users WHERE idlogin = {event.user_id} AND permession = {1}")
+                if dataCopy.fetchone() is None:
+                    values = 0
+                else:
+                    values = 1
+                db.close()
+                new_keyboard = keyboard.create_keyboard(response, values)
                 # Если нажимают: "1"
-                if (response == 'рассылка') and (event.user_id == id_1 or event.user_id == my_id):
+                if (response == 'рассылка') and (values == 1):
                     send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                  message="Вы попали в меню рассылки!",
                                  keyboard=new_keyboard, attachment=None)
@@ -68,7 +83,7 @@ def monitor_msg(vk_session, session_api):
                     print("Ввели команду: закрыть клавиатуру")
                     send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Вы закрыли клавиатуру",
                                  keyboard=new_keyboard, attachment=None)
-                elif (response == 'создать рассылку') and (event.user_id == id_1 or event.user_id == my_id):
+                elif (response == 'создать рассылку') and (values == 1):
                     with open("Инструкция.txt", 'r', encoding="utf-8") as f:
                         message_main = f.read()
                     print("Ввели команду: создать рассылку")
@@ -78,7 +93,7 @@ def monitor_msg(vk_session, session_api):
                     attach_send_in = open('Вложение рассылки.txt', 'w', encoding='utf-8')
                     text_send_in.truncate()
                     attach_send_in.truncate()
-                elif (response == 'отправить рассылку') and (event.user_id == id_1 or event.user_id == my_id):
+                elif (response == 'отправить рассылку') and (values == 1):
                     text_final = open("Текст рассылки.txt", 'r', encoding="utf-8")
                     attach_final = open("Вложение рассылки.txt", 'r', encoding="utf-8")
                     send_text_final = text_final.read()
@@ -87,7 +102,7 @@ def monitor_msg(vk_session, session_api):
                     attach_final.close()
                     # Вытаскиваем всех участников группы для получения их id
                     members = vk_session.method('groups.getMembers',
-                                                {'group_id': vk_id_group, 'count': 20})
+                                                {'group_id': vk_id_group, 'count': 1000})
                     # Присваиваем id участников в отдельную переменную
                     users_items = members["items"]
                     # Получаем количество участников группы
@@ -108,6 +123,22 @@ def monitor_msg(vk_session, session_api):
                             i += 1
                             print("Пользователю не отправилось сообщение!")
                             continue
+                elif (response == 'управление админами') and (values == 1):
+                    print("Ввели команду: управление админами")
+                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Вы попали в меню управление админами группы!",
+                                 keyboard=new_keyboard, attachment=None)
+                elif (response == 'список админов') and (values == 1):
+                    print("Ввели команду: список админов")
+                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ввели команду: список админов",
+                                 keyboard=None, attachment=None)
+                elif (response == 'добавить админа') and (values == 1):
+                    print("Ввели команду: добавить админа")
+                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ввели команду: добавить админа",
+                                 keyboard=None, attachment=None)
+                elif (response == 'удалить админа') and (values == 1):
+                    print("Ввели команду: удалить админа")
+                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ввели команду: удалить админа",
+                                 keyboard=None, attachment=None)
                 else:
                     buff_type = []
                     buff_id = []
@@ -148,6 +179,7 @@ def send_message(vk_session, id_type, id_user, message=None, keyboard=None, atta
 # Исполняющая программу функция
 def main():
     print("Приложение запущено")
+    # vk-api (longpool)
     vk_session = vk_api.VkApi(token=vk_api_token)
     session_api = vk_session.get_api()
     monitor_msg(vk_session, session_api)
