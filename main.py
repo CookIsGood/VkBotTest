@@ -13,6 +13,7 @@ import random
 import datetime
 import requests
 import re
+import sys
 
 
 # KeyError:
@@ -45,12 +46,10 @@ def monitor_msg(vk_session, session_api):
                 elif response == 'о нас':
                     print("Ввели команду: о нас")
                     attach = 'video-191447820_456239018', 'photo114220893_457247628'
-                    print(type(attach))
                     buff = []
                     for items in attach:
                         buff.append(items)
                     attach_list = ','.join(buff)
-                    print(attach_list)
                     send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ссылка на видео",
                                  keyboard=None, attachment=attach_list)
                 elif response == 'команда 2':
@@ -110,7 +109,6 @@ def monitor_msg(vk_session, session_api):
                             print("Пользователю не отправилось сообщение!")
                             continue
                 else:
-                    print(event.attachments)
                     buff_type = []
                     buff_id = []
                     for i in range(1, 10):
@@ -121,12 +119,9 @@ def monitor_msg(vk_session, session_api):
                             buff_type.append(type_attach)
                         except KeyError:
                             pass
-                    print(len(buff_type))
-                    print(buff_id)
                     buff = []
                     for i in range(0, len(buff_type)):
                         buff.append(str(buff_type[i]) + str(buff_id[i]))
-                    print(buff)
                     final_buff = []
                     for items in buff:
                         final_buff.append(items)
