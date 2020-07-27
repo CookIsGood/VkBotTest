@@ -38,7 +38,7 @@ def monitor_msg(vk_session, session_api):
                 db = sqlite3.connect('server.db')
                 sql = db.cursor()
                 dataCopy = sql.execute(
-                    f"SELECT permession  FROM users WHERE idlogin = {event.user_id} AND permession = {1}")
+                    f"SELECT permession  FROM users WHERE idlogin = '{event.user_id}' AND permession = '{1}'")
                 if dataCopy.fetchone() is None:
                     values = 0
                 else:
@@ -50,7 +50,7 @@ def monitor_msg(vk_session, session_api):
                     send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                  message="Вы попали в меню рассылки!",
                                  keyboard=new_keyboard, attachment=None)
-                elif response == 'начать':
+                elif response == 'начать' or response == 'вернуться назад':
                     with open("Приветствие.txt", 'r', encoding="utf-8") as f:
                         message_main = f.read()
                     name = session_api.users.get(user_ids=event.user_id)[0]["first_name"]
@@ -67,10 +67,6 @@ def monitor_msg(vk_session, session_api):
                     attach_list = ','.join(buff)
                     send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ссылка на видео",
                                  keyboard=None, attachment=attach_list)
-                elif response == 'команда 2':
-                    print("Ввели команду: команда 2")
-                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Вы ввели команду 2",
-                                 keyboard=None, attachment=None)
                 elif response == 'команда 3':
                     print("Ввели команду: команда 3")
                     send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Вы ввели команду 3",
@@ -125,19 +121,65 @@ def monitor_msg(vk_session, session_api):
                             continue
                 elif (response == 'управление админами') and (values == 1):
                     print("Ввели команду: управление админами")
-                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Вы попали в меню управление админами группы!",
+                    send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                 message="Вы попали в меню управление админами группы! \nДля того, чтобы "
+                                         "добавить/удалить админа введите его id в формате: 111111111",
                                  keyboard=new_keyboard, attachment=None)
+                    text_final = open("Текст рассылки.txt", 'w', encoding="utf-8")
+                    text_final.truncate()
                 elif (response == 'список админов') and (values == 1):
                     print("Ввели команду: список админов")
-                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ввели команду: список админов",
-                                 keyboard=None, attachment=None)
+                    db = sqlite3.connect('server.db')
+                    sql = db.cursor()
+                    dataCount = sql.execute(
+                        f"SELECT COUNT(idlogin)  FROM users WHERE permession = '{1}'")
+                    numberOfRows = dataCount.fetchone()[0]
+                    # reg = re.compile('[^a-zA-Z ]')
+                    dataCopy = sql.execute(
+                        f"SELECT idlogin  FROM users WHERE permession = '{1}'")
+                    values = dataCopy.fetchmany(size=numberOfRows)
+                    print("Кол во:" + str(numberOfRows))
+                    print(type(values))
+                    for i in range(0, numberOfRows):
+                        send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                     message=f"Админ группы: id{values[i]}",
+                                     keyboard=None, attachment=None)
+                    text_final = open("Текст рассылки.txt", 'w', encoding="utf-8")
+                    text_final.truncate()
                 elif (response == 'добавить админа') and (values == 1):
                     print("Ввели команду: добавить админа")
-                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ввели команду: добавить админа",
+                    text_final = open("Текст рассылки.txt", 'r', encoding="utf-8")
+                    send_text_final = text_final.read()
+                    text_final.close()
+                    db = sqlite3.connect('server.db')
+                    sql = db.cursor()
+                    sql.execute(
+                        f"UPDATE users SET permession = {1} WHERE idlogin = '{send_text_final}'")
+                    db.commit()
+                    send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                 message=f"Права обновлены!",
                                  keyboard=None, attachment=None)
+                    text_final = open("Текст рассылки.txt", 'w', encoding="utf-8")
+                    text_final.truncate()
                 elif (response == 'удалить админа') and (values == 1):
                     print("Ввели команду: удалить админа")
-                    send_message(vk_session, id_type='user_id', id_user=event.user_id, message="Ввели команду: удалить админа",
+                    text_final = open("Текст рассылки.txt", 'r', encoding="utf-8")
+                    send_text_final = text_final.read()
+                    text_final.close()
+                    db = sqlite3.connect('server.db')
+                    sql = db.cursor()
+                    sql.execute(
+                        f'UPDATE users SET permession = {0} WHERE idlogin = "{send_text_final}"')
+                    db.commit()
+                    send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                 message=f"Права обновлены!",
+                                 keyboard=None, attachment=None)
+                    text_final = open("Текст рассылки.txt", 'w', encoding="utf-8")
+                    text_final.truncate()
+                elif response == 'узнать свой id':
+                    print("Ввели команду: узнать свой id")
+                    send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                 message=f"Ваш id: {event.user_id}",
                                  keyboard=None, attachment=None)
                 else:
                     buff_type = []
