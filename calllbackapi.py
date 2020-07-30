@@ -24,20 +24,25 @@ def hello_world():
 def processing():
     # Распаковываем json из пришедшего POST-запроса
     data = json.loads(request.data)
-
+    poll_id = open("id опрос.txt", 'r+', encoding="utf-8")
+    poll_text = open("Текст опрос.txt", 'r+', encoding="utf-8")
+    poll_attach = open("Вложение опрос.txt", 'r+', encoding="utf-8")
+    poll_id_read = poll_id.read()
+    poll_text_read = poll_text.read()
+    poll_attach_read = poll_attach.read()
     # Вконтакте в своих запросах всегда отправляет поле типа
     if 'type' not in data.keys():
         return 'not vk'
     if data['type'] == 'confirmation':
         return confirmation_token
-    elif data['type'] == 'poll_vote_new':
+    elif data['type'] == 'poll_vote_new' and data['object']['poll_id'] == int(poll_id_read):
         session = vk.Session()
         # vk_session = vk_api.VkApi(token=vk_api_token)
         api = vk.API(session, v='5.110')
         # session_api = vk_session.get_api()
         user_id = data['object']['user_id']
-        api.messages.send(access_token=vk_api_token, user_id=str(user_id), message='Привет, я новый бот!',
-                          attachment='photo114220893_457247628', random_id=random.getrandbits(64))
+        api.messages.send(access_token=vk_api_token, user_id=str(user_id), message=f'{poll_text_read}',
+                          attachment=f'{poll_attach_read}', random_id=random.getrandbits(64))
         # Сообщение о том, что обработка прошла успешно
         return 'ok'
     elif data['type'] == 'group_join':
@@ -46,24 +51,16 @@ def processing():
         sql = db.cursor()
         sql.execute("""CREATE TABLE IF NOT EXISTS users (
               idlogin TEXT,
-              permession INT
+              permession INT,
+              UNIQUE(idlogin, permession)
               )""")
         db.commit()
-        # Вытаскиваем всех участников группы для получения их id
-        # members = vk_session_server.method('groups.getMembers',
-                                          #  {'group_id': vk_id_group, 'count': 1000})
-        # Присваиваем id участников в отдельную переменную
-        # users_items = members["items"]
         session = vk.Session()
         api = vk.API(session, v='5.110')
         user_id = data['object']['user_id']
-        # Получаем количество участников группы
-        # count_users_items = members["count"]
-        # sql.execute(f"INSERT INTO users VALUES ({id_users}, '{0}')")
-        # db.commit()
         dataCopy = sql.execute(f"SELECT idlogin  FROM users WHERE idlogin = '{user_id}'")
         if dataCopy.fetchone() is None:
-            sql.execute(f"INSERT INTO users VALUES ('{user_id}', '{0}')")
+            sql.execute(f"INSERT OR IGNORE INTO users VALUES ('{user_id}', '{0}')")
             db.commit()
             api.messages.send(access_token=vk_api_token, user_id=str(my_id), message=f'В группу вошел: {user_id}', random_id=random.getrandbits(64))
         else:

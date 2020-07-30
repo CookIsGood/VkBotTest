@@ -186,6 +186,10 @@ def monitor_msg(vk_session, session_api):
                                  message=f"Введите текст рассылки для проголосовавших в опросе и можете прикрепить "
                                          f"вложения...",
                                  keyboard=None, attachment=None)
+                    text_send_in = open('Текст опрос.txt', 'w', encoding='utf-8')
+                    attach_send_in = open('Вложение опрос.txt', 'w', encoding='utf-8')
+                    text_send_in.truncate()
+                    attach_send_in.truncate()
                 elif (response == 'сохранить сообщение') and (values == 1 or values == 2):
                     print("Ввели команду: сохранить сообщение")
                     send_message(vk_session, id_type='user_id', id_user=event.user_id,
@@ -196,6 +200,8 @@ def monitor_msg(vk_session, session_api):
                     send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                  message=f"Введите id опроса в формате: 111111111",
                                  keyboard=None, attachment=None)
+                    text_send_in = open('id опрос.txt', 'w', encoding='utf-8')
+                    text_send_in.truncate()
                 elif (response == 'сохранить id опроса') and (values == 1 or values == 2):
                     print("Ввели команду: сохранить id опроса")
                     send_message(vk_session, id_type='user_id', id_user=event.user_id,
@@ -236,9 +242,39 @@ def monitor_msg(vk_session, session_api):
                         text_final.close()
                         attach_final.close()
                     elif msg_text == 'создать сообщение' or msg_text == 'Создать сообщение':
-                        pass
+                        buff_type = []
+                        buff_id = []
+                        for i in range(1, 10):
+                            try:
+                                id_attach = event.attachments["attach" + str(i)]
+                                buff_id.append(id_attach)
+                                type_attach = event.attachments["attach" + str(i) + "_type"]
+                                buff_type.append(type_attach)
+                            except KeyError:
+                                pass
+                        buff = []
+                        for i in range(0, len(buff_type)):
+                            buff.append(str(buff_type[i]) + str(buff_id[i]))
+                        final_buff = []
+                        for items in buff:
+                            final_buff.append(items)
+                        attach_list = ','.join(final_buff)
+                        text_final = open("Текст опрос.txt", 'r+', encoding="utf-8")
+                        attach_final = open("Вложение опрос.txt", 'r+', encoding="utf-8")
+                        new_text_send = text_final.read()
+                        new_attach_send = attach_final.read()
+                        new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
+                        new_attach_send = re.sub(new_attach_send, str(attach_list), new_attach_send)
+                        text_final.write(new_text_send)
+                        attach_final.write(new_attach_send)
+                        text_final.close()
+                        attach_final.close()
                     elif msg_text == 'cоздать id опроса' or msg_text == 'Создать id опроса':
-                        pass
+                        text_final = open("id опрос.txt", 'r+', encoding="utf-8")
+                        new_text_send = text_final.read()
+                        new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
+                        text_final.write(new_text_send)
+                        text_final.close()
                     else:
                         print("Неопозннная команда...")
                         send_message(vk_session, id_type='user_id', id_user=event.user_id,
