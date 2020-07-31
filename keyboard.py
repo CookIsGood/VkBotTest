@@ -19,9 +19,12 @@ def create_keyboard(response, values):
             keyboard.add_button('РассылкаОпрос', color=VkKeyboardColor.NEGATIVE)
             keyboard.add_line()
             keyboard.add_button('Управление админами', color=VkKeyboardColor.NEGATIVE)
+            keyboard.add_line()
+            keyboard.add_button('Создать о нас', color=VkKeyboardColor.NEGATIVE)
     if (response == 'рассылка') and (values == 1 or values == 2):
         keyboard.add_button('Создать рассылку', color=VkKeyboardColor.POSITIVE)
         keyboard.add_line()
+        keyboard.add_button('Посмотреть рассылку', color=VkKeyboardColor.NEGATIVE)
         keyboard.add_button('Отправить рассылку', color=VkKeyboardColor.NEGATIVE)
         keyboard.add_line()
         keyboard.add_button('Вернуться назад', color=VkKeyboardColor.PRIMARY)
@@ -30,7 +33,10 @@ def create_keyboard(response, values):
         if values == 2:
             keyboard.add_line()
             keyboard.add_button('Добавить админа', color=VkKeyboardColor.NEGATIVE)
+            keyboard.add_button('Сохранить добавление', color=VkKeyboardColor.NEGATIVE)
+            keyboard.add_line()
             keyboard.add_button('Удалить админа', color=VkKeyboardColor.NEGATIVE)
+            keyboard.add_button('Сохранить удаление', color=VkKeyboardColor.NEGATIVE)
         keyboard.add_line()
         keyboard.add_button('Вернуться назад', color=VkKeyboardColor.PRIMARY)
     if (response == 'рассылкаопрос') and (values == 1 or values == 2):
@@ -40,8 +46,14 @@ def create_keyboard(response, values):
         keyboard.add_button('Создать id опроса', color=VkKeyboardColor.POSITIVE)
         keyboard.add_button('Сохранить id опроса', color=VkKeyboardColor.NEGATIVE)
         keyboard.add_line()
+        keyboard.add_button('Посмотреть рассылку опроса', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
         keyboard.add_button('Вернуться назад', color=VkKeyboardColor.PRIMARY)
-
+    if (response == 'создать о нас') and (values == 1 or values == 2):
+        keyboard.add_button('Создать текст', color=VkKeyboardColor.POSITIVE)
+        keyboard.add_button('Сохранить текст', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
+        keyboard.add_button('Вернуться назад', color=VkKeyboardColor.PRIMARY)
     elif response == 'закрыть клавиатуру':
         print('Закрываем клавиатуру')
         return keyboard.get_empty_keyboard()

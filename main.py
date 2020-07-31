@@ -55,7 +55,7 @@ def monitor_msg(vk_session, session_api):
                                          message="Вы попали в меню рассылки!",
                                          keyboard=new_keyboard, attachment=None)
                         elif response == 'начать' or response == 'вернуться назад':
-                            with open("Приветствие.txt", 'r', encoding="utf-8") as f:
+                            with open("buff_text\Приветствие.txt", 'r', encoding="utf-8") as f:
                                 message_main = f.read()
                             name = session_api.users.get(user_ids=event.user_id)[0]["first_name"]
                             print("Ввели команду: начать")
@@ -64,33 +64,34 @@ def monitor_msg(vk_session, session_api):
                                          keyboard=new_keyboard, attachment=None)
                         elif response == 'о нас':
                             print("Ввели команду: о нас")
-                            attach = 'video-191447820_456239018', 'photo114220893_457247628'
-                            buff = []
-                            for items in attach:
-                                buff.append(items)
-                            attach_list = ','.join(buff)
+                            text_final = open("buff_text\аbout_text.txt", 'r', encoding="utf-8")
+                            attach_final = open("buff_text\аbout_attach.txt", 'r', encoding="utf-8")
+                            send_text_final = text_final.read()
+                            send_attach_final = attach_final.read()
+                            text_final.close()
+                            attach_final.close()
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
-                                         message="Ссылка на видео",
-                                         keyboard=None, attachment=attach_list)
+                                         message=f"{send_text_final}",
+                                         keyboard=None, attachment=f"{send_attach_final}")
                         elif response == 'закрыть клавиатуру':
                             print("Ввели команду: закрыть клавиатуру")
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                          message="Вы закрыли клавиатуру",
                                          keyboard=new_keyboard, attachment=None)
                         elif (response == 'создать рассылку') and (values == 1 or values == 2):
-                            with open("Инструкция.txt", 'r', encoding="utf-8") as f:
+                            with open("buff_text\Инструкция.txt", 'r', encoding="utf-8") as f:
                                 message_main = f.read()
                             print("Ввели команду: создать рассылку")
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                          message=f"{message_main}",
                                          keyboard=None, attachment=None)
-                            text_send_in = open('Текст рассылки.txt', 'w', encoding='utf-8')
-                            attach_send_in = open('Вложение рассылки.txt', 'w', encoding='utf-8')
+                            text_send_in = open('buff_text\Текст рассылки.txt', 'w', encoding='utf-8')
+                            attach_send_in = open('buff_text\Вложение рассылки.txt', 'w', encoding='utf-8')
                             text_send_in.truncate()
                             attach_send_in.truncate()
                         elif (response == 'отправить рассылку') and (values == 1 or values == 2):
-                            text_final = open("Текст рассылки.txt", 'r', encoding="utf-8")
-                            attach_final = open("Вложение рассылки.txt", 'r', encoding="utf-8")
+                            text_final = open("buff_text\Текст рассылки.txt", 'r', encoding="utf-8")
+                            attach_final = open("buff_text\Вложение рассылки.txt", 'r', encoding="utf-8")
                             send_text_final = text_final.read()
                             send_attach_final = attach_final.read()
                             text_final.close()
@@ -118,13 +119,21 @@ def monitor_msg(vk_session, session_api):
                                     i += 1
                                     print("Пользователю не отправилось сообщение!")
                                     continue
+                        elif (response == 'посмотреть рассылку') and (values == 1 or values == 2):
+                            print("Ввели команду: посмотреть рассылку")
+                            text_final = open("buff_text\Текст рассылки.txt", 'r', encoding="utf-8")
+                            attach_final = open("buff_text\Вложение рассылки.txt", 'r', encoding="utf-8")
+                            send_text_final = text_final.read()
+                            send_attach_final = attach_final.read()
+                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                         message=f"{send_text_final}",
+                                         keyboard=None, attachment=f"{send_attach_final}")
                         elif (response == 'управление админами') and (values == 1 or values == 2):
                             print("Ввели команду: управление админами")
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
-                                         message="Вы попали в меню управление админами группы! \nДля того, чтобы "
-                                                 "добавить/удалить админа введите его id в формате: 111111111",
+                                         message="Вы попали в меню управление админами группы!",
                                          keyboard=new_keyboard, attachment=None)
-                            text_final = open("Текст рассылки.txt", 'w', encoding="utf-8")
+                            text_final = open("buff_text\Текст рассылки.txt", 'w', encoding="utf-8")
                             text_final.truncate()
                         elif (response == 'список админов') and (values == 1 or values == 2):
                             print("Ввели команду: список админов")
@@ -143,27 +152,50 @@ def monitor_msg(vk_session, session_api):
                                 send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                              message=f"Админ группы: id{values[i]}",
                                              keyboard=None, attachment=None)
-                            text_final = open("Текст рассылки.txt", 'w', encoding="utf-8")
+                            text_final = open("buff_text\Текст рассылки.txt", 'w', encoding="utf-8")
                             text_final.truncate()
                         elif (response == 'добавить админа') and (values == 2):
                             print("Ввели команду: добавить админа")
-                            text_final = open("Текст рассылки.txt", 'r', encoding="utf-8")
+                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                         message=f"Для того, чтобы добавить/удалить админа введите его id в формате: "
+                                                 f"111111111 и отправьте его боту.\n А затем нажмите на кнопку "
+                                                 f"сохранить добавление/удаление.",
+                                         keyboard=None, attachment=None)
+                            text_final = open("buff_text\id админа.txt", 'w', encoding="utf-8")
+                            text_final.truncate()
+                        elif (response == 'удалить админа') and (values == 2):
+                            print("Ввели команду: удалить админа")
+                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                         message=f"Для того, чтобы добавить/удалить админа введите его id в формате: "
+                                                 f"111111111 и отправьте его боту.\n А затем нажмите на кнопку "
+                                                 f"сохранить добавление/удаление.",
+                                         keyboard=None, attachment=None)
+                            text_final = open("buff_text\id админа.txt", 'w', encoding="utf-8")
+                            text_final.truncate()
+                        elif response == 'узнать id':
+                            print("Ввели команду: узнать свой id")
+                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                         message=f"Ваш id: {event.user_id}",
+                                         keyboard=None, attachment=None)
+                        elif response == 'сохранить добавление':
+                            print("Ввели команду: Сохранить добавление")
+                            text_final = open("buff_text\id админа.txt", 'r', encoding="utf-8")
                             send_text_final = text_final.read()
                             text_final.close()
                             db = sqlite3.connect('server.db')
                             sql = db.cursor()
                             sql.execute(
-                                f"UPDATE users SET permession = {1} WHERE idlogin = '{send_text_final}'")
+                                f'UPDATE users SET permession = {1} WHERE idlogin = "{send_text_final}"')
                             db.commit()
                             db.close()
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                          message=f"Права обновлены!",
                                          keyboard=None, attachment=None)
-                            text_final = open("Текст рассылки.txt", 'w', encoding="utf-8")
+                            text_final = open("buff_text\id админа.txt", 'w', encoding="utf-8")
                             text_final.truncate()
-                        elif (response == 'удалить админа') and (values == 2):
-                            print("Ввели команду: удалить админа")
-                            text_final = open("Текст рассылки.txt", 'r', encoding="utf-8")
+                        elif response == 'сохранить удаление':
+                            print("Ввели команду: Сохранить удаление")
+                            text_final = open("buff_text\id админа.txt", 'r', encoding="utf-8")
                             send_text_final = text_final.read()
                             text_final.close()
                             db = sqlite3.connect('server.db')
@@ -175,26 +207,30 @@ def monitor_msg(vk_session, session_api):
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                          message=f"Права обновлены!",
                                          keyboard=None, attachment=None)
-                            text_final = open("Текст рассылки.txt", 'w', encoding="utf-8")
+                            text_final = open("buff_text\id админа.txt", 'w', encoding="utf-8")
                             text_final.truncate()
-                        elif response == 'узнать id':
-                            print("Ввели команду: узнать свой id")
-                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
-                                         message=f"Ваш id: {event.user_id}",
-                                         keyboard=None, attachment=None)
                         elif (response == 'рассылкаопрос') and (values == 1 or values == 2):
                             print("Ввели команду: рассылкаопрос")
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                          message=f"рассылкаопрос",
                                          keyboard=new_keyboard, attachment=None)
+                        elif (response == 'посмотреть рассылку опроса') and (values == 1 or values == 2):
+                            print("Ввели команду: посмотреть рассылку")
+                            text_final = open("buff_text\Текст опрос.txt", 'r', encoding="utf-8")
+                            attach_final = open("buff_text\Вложение опрос.txt", 'r', encoding="utf-8")
+                            send_text_final = text_final.read()
+                            send_attach_final = attach_final.read()
+                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                         message=f"{send_text_final}",
+                                         keyboard=None, attachment=f"{send_attach_final}")
                         elif (response == 'создать сообщение') and (values == 1 or values == 2):
                             print("Ввели команду: создать сообщение")
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                          message=f"Введите текст рассылки для проголосовавших в опросе и можете прикрепить "
                                                  f"вложения...",
                                          keyboard=None, attachment=None)
-                            text_send_in = open('Текст опрос.txt', 'w', encoding='utf-8')
-                            attach_send_in = open('Вложение опрос.txt', 'w', encoding='utf-8')
+                            text_send_in = open('buff_text\Текст опрос.txt', 'w', encoding='utf-8')
+                            attach_send_in = open('buff_text\Вложение опрос.txt', 'w', encoding='utf-8')
                             text_send_in.truncate()
                             attach_send_in.truncate()
                         elif (response == 'сохранить сообщение') and (values == 1 or values == 2):
@@ -207,12 +243,32 @@ def monitor_msg(vk_session, session_api):
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                          message=f"Введите id опроса в формате: 111111111",
                                          keyboard=None, attachment=None)
-                            text_send_in = open('id опрос.txt', 'w', encoding='utf-8')
+                            text_send_in = open('buff_text\id опрос.txt', 'w', encoding='utf-8')
                             text_send_in.truncate()
                         elif (response == 'сохранить id опроса') and (values == 1 or values == 2):
                             print("Ввели команду: сохранить id опроса")
                             send_message(vk_session, id_type='user_id', id_user=event.user_id,
                                          message=f"Id опроса успешно сохранен!",
+                                         keyboard=None, attachment=None)
+                        elif (response == "создать о нас") and (values == 1 or values == 2):
+                            print("Ввели команду: создать о нас")
+                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                         message=f"Вы попали в меню редактирование кнопки: О нас!",
+                                         keyboard=new_keyboard, attachment=None)
+                        elif (response == 'создать текст') and (values == 1 or values == 2):
+                            print("Ввели команду: создать текст")
+                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                         message=f"Введите текст и прекрепите вложение, а потом отправьте это "
+                                                 f"сообщение боту. \n Затем, нажмите кнопку: сохранить текст",
+                                         keyboard=None, attachment=None)
+                            text_send_in = open('buff_text\аbout_text.txt', 'w', encoding='utf-8')
+                            attach_send_in = open('buff_text\аbout_attach.txt', 'w', encoding='utf-8')
+                            text_send_in.truncate()
+                            attach_send_in.truncate()
+                        elif (response == 'сохранить текст') and (values == 1 or values == 2):
+                            print("Ввели команду: сохранить текст")
+                            send_message(vk_session, id_type='user_id', id_user=event.user_id,
+                                         message=f"Ваш текст сохранен! Проверьте кнопку: О нас",
                                          keyboard=None, attachment=None)
                         elif values == 1 or values == 2:
                             msg_history = vk_session.method('messages.getHistory',
@@ -238,8 +294,8 @@ def monitor_msg(vk_session, session_api):
                                 for items in buff:
                                     final_buff.append(items)
                                 attach_list = ','.join(final_buff)
-                                text_final = open("Текст рассылки.txt", 'r+', encoding="utf-8")
-                                attach_final = open("Вложение рассылки.txt", 'r+', encoding="utf-8")
+                                text_final = open("buff_text\Текст рассылки.txt", 'r+', encoding="utf-8")
+                                attach_final = open("buff_text\Вложение рассылки.txt", 'r+', encoding="utf-8")
                                 new_text_send = text_final.read()
                                 new_attach_send = attach_final.read()
                                 new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
@@ -266,8 +322,8 @@ def monitor_msg(vk_session, session_api):
                                 for items in buff:
                                     final_buff.append(items)
                                 attach_list = ','.join(final_buff)
-                                text_final = open("Текст опрос.txt", 'r+', encoding="utf-8")
-                                attach_final = open("Вложение опрос.txt", 'r+', encoding="utf-8")
+                                text_final = open("buff_text\Текст опрос.txt", 'r+', encoding="utf-8")
+                                attach_final = open("buff_text\Вложение опрос.txt", 'r+', encoding="utf-8")
                                 new_text_send = text_final.read()
                                 new_attach_send = attach_final.read()
                                 new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
@@ -277,11 +333,51 @@ def monitor_msg(vk_session, session_api):
                                 text_final.close()
                                 attach_final.close()
                             elif msg_text == 'cоздать id опроса' or msg_text == 'Создать id опроса':
-                                text_final = open("id опрос.txt", 'r+', encoding="utf-8")
+                                text_final = open("buff_text\id опрос.txt", 'r+', encoding="utf-8")
                                 new_text_send = text_final.read()
                                 new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
                                 text_final.write(new_text_send)
                                 text_final.close()
+                            elif msg_text == 'добавить админа' or msg_text == 'Добавить админа':
+                                text_final = open("buff_text\id админа.txt", 'r+', encoding="utf-8")
+                                new_text_send = text_final.read()
+                                new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
+                                text_final.write(new_text_send)
+                                text_final.close()
+                            elif msg_text == 'удалить админа' or msg_text == 'Удалить админа':
+                                text_final = open("buff_text\id админа.txt", 'r+', encoding="utf-8")
+                                new_text_send = text_final.read()
+                                new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
+                                text_final.write(new_text_send)
+                                text_final.close()
+                            elif msg_text == 'cоздать текст' or msg_text == 'Создать текст':
+                                buff_type = []
+                                buff_id = []
+                                for i in range(1, 10):
+                                    try:
+                                        id_attach = event.attachments["attach" + str(i)]
+                                        buff_id.append(id_attach)
+                                        type_attach = event.attachments["attach" + str(i) + "_type"]
+                                        buff_type.append(type_attach)
+                                    except KeyError:
+                                        pass
+                                buff = []
+                                for i in range(0, len(buff_type)):
+                                    buff.append(str(buff_type[i]) + str(buff_id[i]))
+                                final_buff = []
+                                for items in buff:
+                                    final_buff.append(items)
+                                attach_list = ','.join(final_buff)
+                                text_final = open("buff_text\аbout_text.txt", 'r+', encoding="utf-8")
+                                attach_final = open("buff_text\аbout_attach.txt", 'r+', encoding="utf-8")
+                                new_text_send = text_final.read()
+                                new_attach_send = attach_final.read()
+                                new_text_send = re.sub(new_text_send, str(event.text), new_text_send)
+                                new_attach_send = re.sub(new_attach_send, str(attach_list), new_attach_send)
+                                text_final.write(new_text_send)
+                                attach_final.write(new_attach_send)
+                                text_final.close()
+                                attach_final.close()
                             else:
                                 print("Неопозннная команда...")
                                 send_message(vk_session, id_type='user_id', id_user=event.user_id,
