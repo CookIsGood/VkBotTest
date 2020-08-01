@@ -53,6 +53,8 @@ def create_keyboard(response, values):
         keyboard.add_button('Создать текст', color=VkKeyboardColor.POSITIVE)
         keyboard.add_button('Сохранить текст', color=VkKeyboardColor.NEGATIVE)
         keyboard.add_line()
+        keyboard.add_button('Посмотреть о нас', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
         keyboard.add_button('Вернуться назад', color=VkKeyboardColor.PRIMARY)
     elif response == 'закрыть клавиатуру':
         print('Закрываем клавиатуру')
