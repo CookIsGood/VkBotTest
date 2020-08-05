@@ -20,7 +20,7 @@ import sys
 
 # KeyError:
 
-def monitor_msg(vk_session, session_api):
+def monitor_msg(vk_session, session_api, members):
     longpoll = VkLongPoll(vk_session)
     # users_not_msg = 0
     while True:
@@ -104,23 +104,16 @@ def monitor_msg(vk_session, session_api):
                             send_attach_final = attach_final.read()
                             text_final.close()
                             attach_final.close()
-                            # Вытаскиваем всех участников группы для получения их id
-                            members = vk_session.method('groups.getMembers',
-                                                        {'group_id': vk_id_group, 'count': 1000})
-                            # Присваиваем id участников в отдельную переменную
-                            users_items = members["items"]
-                            # Получаем количество участников группы
-                            count_users_items = members["count"]
-                            print("Список id участников группы: " + str(users_items))
-                            print("Сообщение доставляется: " + str(count_users_items) + " пользовтелям...")
+                            print("Список id участников группы: " + str(members))
+                            print("Сообщение доставляется: " + str(len(members)) + " пользовтелям...")
                             # Цикл в котором будет происходить рассылка сообщения участникам группы
                             # Кол-во участников регулируется переменной count_users_items
-                            for i in range(count_users_items):
+                            for i in range(len(members)):
                                 # users_not_msg += 1
                                 # Блок try catch, если по каким то причинам невозможна отправка сообщения участнику,
                                 # то добавляем к итератору 1 и продолжаем цикл for
                                 try:
-                                    send_message(vk_session, id_type='user_id', id_user=users_items[i],
+                                    send_message(vk_session, id_type='user_id', id_user=members[i],
                                                  message=f"{send_text_final}", keyboard=None,
                                                  attachment=f"{str(send_attach_final)}")
                                 except vk_api.exceptions.ApiError:
@@ -433,18 +426,25 @@ def main():
     # vk-api (longpool)
     vk_session = vk_api.VkApi(token=vk_api_token)
     session_api = vk_session.get_api()
+    members_count = vk_session.method('groups.getById', {'group_id': vk_id_group, 'fields': "members_count"})
+    count_ids = members_count[0]["members_count"]
 
-    members = vk_session.method('groups.getMembers', {'group_id': vk_id_group, 'count': 1000})
     # Присваиваем id участников в отдельную переменную
-    users_items = members["items"]
+    members = []
+    if count_ids > 1000:
+        for i in range(0, 1 + count_ids // 1000):
+            members.extend(vk_session.method('groups.getMembers', {'group_id': vk_id_group, 'count': 1000, 'offset': i * 1000})["items"])
+            print("Добавил" + str(i))
+    else:
+        members = vk_session.method('groups.getMembers', {'group_id': vk_id_group, 'count': 1000})["items"]
+        print("Добавил все else")
     # Получаем количество участников группы
-    count_users_items = members["count"]
-    for i in range(count_users_items):
-        sql.execute(f"INSERT OR IGNORE INTO users VALUES ('{users_items[i]}', '{0}')")
+    for i in range(count_ids):
+        sql.execute(f"INSERT OR IGNORE INTO users VALUES ('{members[i]}', '{0}')")
         db.commit()
     db.close()
     print("Приложение запущено")
-    monitor_msg(vk_session, session_api)
+    monitor_msg(vk_session, session_api, members)
 
 
 if __name__ == '__main__':
